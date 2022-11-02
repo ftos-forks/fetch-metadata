@@ -1,4 +1,4 @@
-name: Check dist
+name: Check for uncommitted changes
 
 on:
   pull_request:
@@ -8,7 +8,8 @@ on:
       - 'releases/*'
 
 jobs:
-  verify-build: # make sure the checked in dist/ folder matches the output of a rebuild
+  # This also ensures a rebuild matches the checked-in dist/ folder
+  verify-build:
     runs-on: ubuntu-latest
 
     steps:
@@ -31,5 +32,7 @@ jobs:
       - name: Rebuild the dist/ directory
         run: npm run build
 
-      - name: Compare the expected and actual dist/ directories
-        run: bin/check-diff
+      - name: Compare the expected vs actual files.
+        # Check everything, not just dist/ because anything not needing to be
+        # committed should be listed in .gitignore
+        run: test -z "$(git status --porcelain)"
